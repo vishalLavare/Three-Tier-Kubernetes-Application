@@ -55,6 +55,7 @@ jobs:
       - name: Run Typecheck and Build
         run: |
           cd frontend
+          chmod +x node_modules/.bin/* || true
           npm run build
 
   # ===================================================
