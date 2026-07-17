@@ -1,0 +1,56 @@
+# ==========================================
+# Git Ignore Config: Three-Tier App
+# ==========================================
+
+# Local secrets & environment configuration
+backend/.env
+backend/.env.local
+backend/.env.*.local
+
+# Local Database files & logs
+database/local_data/
+database/*.log
+
+# Python Virtual Environments
+.venv/
+venv/
+ENV/
+env/
+
+# Python Bytecode, Caches & Testing
+**/__pycache__/
+**/*.py[cod]
+**/*.pyo
+**/*.pyd
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Node.js dependencies & build outputs
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.svelte-kit/
+frontend/.next/
+.eslintcache
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+.DS_Store?
+ehthumbs.db
+Thumbs.db
