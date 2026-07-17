@@ -1,0 +1,27 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: frontend-pdb
+  namespace: three-tier-app
+  labels:
+    app: frontend
+    app.kubernetes.io/name: three-tier-kubernetes-app
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: frontend
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: backend-pdb
+  namespace: three-tier-app
+  labels:
+    app: backend
+    app.kubernetes.io/name: three-tier-kubernetes-app
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: backend
