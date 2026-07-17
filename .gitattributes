@@ -1,0 +1,16 @@
+# Enforce LF line endings for files running in Linux containers/runners
+* text=auto
+
+# Enforce LF for workflows, Docker files, configs, and scripts
+*.yml text eol=lf
+*.yaml text eol=lf
+*.conf text eol=lf
+*Dockerfile* text eol=lf
+*.sh text eol=lf
+*.sql text eol=lf
+*.py text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.json text eol=lf
+*.html text eol=lf
+*.css text eol=lf

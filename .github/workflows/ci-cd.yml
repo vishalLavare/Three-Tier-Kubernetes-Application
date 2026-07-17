@@ -76,19 +76,21 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       # Log in to Docker Hub (disabled by default, uncomment with secrets configured)
-      # - name: Log in to Docker Hub
-      #   uses: docker/login-action@v3
-      #   with:
-      #     username: ${{ secrets.DOCKERHUB_USERNAME }}
-      #     password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build Backend Docker Image
         uses: docker/build-push-action@v5
         with:
           context: .
           file: docker/backend.Dockerfile
-          push: false # Set to true and specify tags if pushing to registry
-          tags: ${{ env.IMAGE_REPOSITORY }}-backend:latest
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/three-tier-backend:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/three-tier-backend:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -97,8 +99,10 @@ jobs:
         with:
           context: .
           file: docker/frontend.Dockerfile
-          push: false # Set to true and specify tags if pushing to registry
-          tags: ${{ env.IMAGE_REPOSITORY }}-frontend:latest
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/three-tier-frontend:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/three-tier-frontend:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -122,19 +126,28 @@ jobs:
         run: |
           kubeconform -summary -ignore-missing-schemas k8s/
 
-      # In a real environment, you would log in to your Kubernetes cluster and apply the manifests:
-      # - name: Deploy to Kubernetes
-      #   uses: azure/k8s-deploy@v4
-      #   with:
-      #     namespace: three-tier-app
-      #     manifests: |
-      #       k8s/namespace.yaml
-      #       k8s/config/
-      #       k8s/database/
-      #       k8s/backend/
-      #       k8s/frontend/
-      #       k8s/ingress/
-      #       k8s/bonus/
-      #     images: |
-      #       ${{ secrets.DOCKERHUB_USERNAME }}/three-tier-backend:${{ github.sha }}
-      #       ${{ secrets.DOCKERHUB_USERNAME }}/three-tier-frontend:${{ github.sha }}
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Update Kubeconfig
+        run: |
+          aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }} --region ${{ secrets.AWS_REGION }}
+
+      - name: Replace Image Tags in Manifests
+        run: |
+          sed -i 's|three-tier-backend:latest|${{ secrets.DOCKERHUB_USERNAME }}/three-tier-backend:${{ github.sha }}|g' k8s/backend/deployment.yaml
+          sed -i 's|three-tier-frontend:latest|${{ secrets.DOCKERHUB_USERNAME }}/three-tier-frontend:${{ github.sha }}|g' k8s/frontend/deployment.yaml
+
+      - name: Deploy to Amazon EKS
+        run: |
+          kubectl apply -f k8s/namespace.yaml
+          kubectl apply -f k8s/config/
+          kubectl apply -f k8s/database/
+          kubectl apply -f k8s/backend/
+          kubectl apply -f k8s/frontend/
+          kubectl apply -f k8s/ingress/
+          kubectl apply -f k8s/bonus/
