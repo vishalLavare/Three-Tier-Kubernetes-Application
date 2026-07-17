@@ -1,0 +1,28 @@
+# Ignore dependencies
+**/node_modules/
+**/.venv/
+**/venv/
+**/env/
+**/ENV/
+
+# Ignore build outputs
+frontend/dist/
+frontend/build/
+
+# Ignore local database storage and logs
+database/local_data/
+database/*.log
+database/*.stdout.log
+database/*.stderr.log
+backend/.env
+backend/.env.local
+
+# Ignore version control and IDE configuration
+.git/
+.github/
+.vscode/
+.idea/
+.gitignore
+.dockerignore
+README.md
+docs/
