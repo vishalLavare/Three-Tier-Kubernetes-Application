@@ -50,7 +50,7 @@ jobs:
       - name: Install Dependencies
         run: |
           cd frontend
-          npm install
+          npm install --legacy-peer-deps
 
       - name: Run Typecheck and Build
         run: |
